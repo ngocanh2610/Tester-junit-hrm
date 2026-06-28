@@ -61,7 +61,14 @@ public class KhoaDAOTest {
                 actualResult = KhoaDAO.deleteKhoa(p1);
             }
         } else if ("MON".equals(type)) {
-            int tinChi = (param3 == null || param3.trim().isEmpty()) ? 0 : Integer.parseInt(param3.trim());
+            int tinChi = 0;
+            if (param3 != null && !param3.trim().isEmpty()) {
+                try {
+                    tinChi = (int) Double.parseDouble(param3.trim());
+                } catch (NumberFormatException e) {
+                    tinChi = 0;
+                }
+            }
             String maKhoa = (param4 == null) ? "" : param4;
             if ("ADD".equals(action)) {
                 actualResult = KhoaDAO.addMonHoc(p1, p2, tinChi, maKhoa);

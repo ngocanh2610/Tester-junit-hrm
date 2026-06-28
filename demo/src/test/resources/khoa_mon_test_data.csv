@@ -1,8 +1,11 @@
 testCaseID,type,action,param1,param2,param3,param4,dbResult,dbError,expectedResult,description
-TC_K01,KHOA,ADD,,Khoa IT,,,0,,false,Bo trong ma khoa
-TC_K02,KHOA,ADD,K01,,,,0,,false,Bo trong ten khoa
-TC_K03,KHOA,ADD,K02,CNTT,,,0,,false,Trung ten khoa
-TC_M01,MON,ADD,,Toan,3,CNTT,0,,false,Bo trong ma mon
-TC_M02,MON,ADD,MH01,,3,CNTT,0,,false,Bo trong ten mon
-TC_M03,MON,ADD,MH01,Toan,-2,CNTT,0,,false,So tin chi nho hon 0
-TC_M04,MON,ADD,MH05,Toan,3,CNTT,0,,false,Trung ten mon
+TC_K01,KHOA,ADD,,Khoa IT,,,0,,False,Bo trong ma khoa
+TC_K02,KHOA,ADD,K01,,,,0,,False,Bo trong ten khoa
+TC_K03,KHOA,ADD,K01,Khoa Hoc Co Ban,,,0,Loi trung ma khoa,False,Trung ma khoa
+TC_K04,KHOA,ADD,K02,CNTT,,,0,,False,Trung ten khoa
+TC_M01,MON,ADD,,Toan,3.0,CNTT,0,,False,Bo trong ma mon
+TC_M02,MON,ADD,MH01,,3.0,CNTT,0,,False,Bo trong ten mon
+TC_M03,MON,ADD,MH01,Vat Ly,3.0,CNTT,0,Loi trung ma mon,False,Trung ma mon
+TC_M04,MON,ADD,MH05,Toan,3.0,CNTT,0,,False,Trung ten mon
+TC_M05,MON,ADD,MH01,Toan,-2.0,CNTT,0,,False,So tin chi nho hon 0
+
