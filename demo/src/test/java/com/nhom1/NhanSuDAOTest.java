@@ -33,7 +33,7 @@ public class NhanSuDAOTest {
     @CsvFileSource(resources = "/nhan_su_test_data.csv", numLinesToSkip = 1)
     void testAddNhanVien_Validation(String testCaseID, String maNV, String hoTen, String ngaySinh, 
                                     double heSo, double luongCB, double phuCap, 
-                                    boolean expectException, String expectedMsg, String description) throws SQLException {
+                                    boolean isValid, String expectedMsg, String description) throws SQLException {
         
         // Gia lap DB luon luu thanh cong cho case input hop le (TC_NS01)
         when(mockConn.prepareStatement(anyString())).thenReturn(mockPstmt);
@@ -43,9 +43,8 @@ public class NhanSuDAOTest {
         String inputMaNV = (maNV == null) ? "" : maNV;
         String inputHoTen = (hoTen == null) ? "" : hoTen;
 
-        if (expectException) {
+        if (!isValid) {
             Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-                // Cac truong ko quan trong ta fix cung du lieu gia (Nam, CNTT, Giang Vien...)
                 NhanSuDAO.addNhanVien(inputMaNV, inputHoTen, ngaySinh, "Nam", "CNTT", 
                                       "Giảng Viên", "Cử nhân", "Biên chế", "Đang làm việc", 
                                       heSo, luongCB, phuCap, "avatar.png");

@@ -50,24 +50,24 @@ public class LichDayDAOTest {
             LocalDate tuNgay = (tuNgayStr == null || tuNgayStr.trim().isEmpty()) ? null : LocalDate.parse(tuNgayStr.trim());
             LocalDate denNgay = (denNgayStr == null || denNgayStr.trim().isEmpty()) ? null : LocalDate.parse(denNgayStr.trim());
             String phongHocParam = (phongHoc == null) ? "" : phongHoc;
-            if (expectException) {
-                Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            if ("RETURN_TRUE".equals(expectedMsg) || "RETURN_FALSE".equals(expectedMsg)) {
+                boolean result = kiemTraVaPhanCong(maNV, thu, tietBD, soTiet, phongHocParam, tuNgay, denNgay);
+                if ("RETURN_TRUE".equals(expectedMsg)) {
+                    assertTrue(result, testCaseID + " Thất bại: Dữ liệu hợp lệ đáng lẽ phải lưu được!");
+                } else {
+                    assertFalse(result, testCaseID + " Thất bại: Trùng lịch/Phòng đáng lẽ ko cho lưu!");
+                }
+                System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
+            } else {
+                IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
                     kiemTraVaPhanCong(maNV, thu, tietBD, soTiet, phongHocParam, tuNgay, denNgay);
                 });
                 assertEquals(expectedMsg, exception.getMessage(), testCaseID + " sai thông điệp lỗi!");
                 System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
-            } else {
-                boolean result = kiemTraVaPhanCong(maNV, thu, tietBD, soTiet, phongHocParam, tuNgay, denNgay);
-                if ("RETURN_TRUE".equals(expectedMsg)) {
-                    assertTrue(result, testCaseID + " Thất bại: Dữ liệu hợp lệ đáng lẽ phải lưu được!");
-                } else if ("RETURN_FALSE".equals(expectedMsg)) {
-                    assertFalse(result, testCaseID + " Thất bại: Trùng lịch/Phòng đáng lẽ ko cho lưu!");
-                }
-                System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
             }
 
         } catch (NumberFormatException e) {
-            if (expectException && "NUMBER_FORMAT_EXCEPTION".equals(expectedMsg)) {
+            if ("NUMBER_FORMAT_EXCEPTION".equals(expectedMsg)) {
                 assertNotNull(e.getMessage());
                 System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
             } else {

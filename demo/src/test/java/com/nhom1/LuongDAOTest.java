@@ -17,12 +17,14 @@ public class LuongDAOTest {
     public void testTinhLuong_DataDriven(String testCaseID, String description, 
                                          double luongCB, double heSo, double phuCap, 
                                          int soTiet, double donGiaTiet, 
-                                         double expectedResult, boolean expectException) {
+                                         double expectedResult, boolean isValid,
+                                         String expectedMsg) {
         
-        if (expectException) {
-            assertThrows(IllegalArgumentException.class, () -> {
+        if (!isValid) {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
                 tinhLuong(luongCB, heSo, phuCap, soTiet, donGiaTiet);
             }, testCaseID + " Thất bại: Không ném ra ngoại lệ khi có tham số âm");
+            assertEquals(expectedMsg, exception.getMessage(), testCaseID + " sai thong diep loi!");
             System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
         } else {
             double actual = tinhLuong(luongCB, heSo, phuCap, soTiet, donGiaTiet);
