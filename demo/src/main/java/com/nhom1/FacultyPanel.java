@@ -98,14 +98,11 @@ public class FacultyPanel extends JPanel {
         add(cardKhoa);
         add(cardMon);
 
-        // --- SETUP LISTENERS TÌM KIẾM MỘT LẦN DUY NHẤT ---
         setupSearchListener(txtSearchKhoa, true);
         setupSearchListener(txtSearchMon, false);
 
-        // Load dữ liệu
         loadKhoa();
 
-        // Sự kiện Click bảng Khoa
         tblKhoa.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int viewRow = tblKhoa.getSelectedRow();
@@ -120,12 +117,10 @@ public class FacultyPanel extends JPanel {
             }
         });
 
-        // --- BUTTON EVENTS ---
         btnAddK.addActionListener(e -> {
             JTextField txtMa = new JTextField();
             JTextField txtTen = new JTextField();
             Object[] message = {"Mã Khoa:", txtMa, "Tên Khoa:", txtTen};
-
             if (JOptionPane.showConfirmDialog(this, message, "Thêm Khoa", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
                 String ma = txtMa.getText().trim();
                 String ten = txtTen.getText().trim();
@@ -135,7 +130,7 @@ public class FacultyPanel extends JPanel {
                 }
                 if (KhoaDAO.addKhoa(ma, ten)) {
                     loadKhoa();
-                    txtSearchKhoa.setText(""); // Clear search
+                    txtSearchKhoa.setText("");
                     JOptionPane.showMessageDialog(this, "Thêm thành công!");
                 } else {
                     JOptionPane.showMessageDialog(this, "Thêm thất bại!\nCó thể Mã Khoa đã tồn tại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -165,7 +160,6 @@ public class FacultyPanel extends JPanel {
                 String maKhoa = modelKhoa.getValueAt(modelRow, 0).toString();
                 if(KhoaDAO.deleteKhoa(maKhoa)){
                     loadKhoa();
-                    // Reset bảng môn học an toàn
                     modelMonHoc = new DefaultTableModel();
                     tblMonHoc.setModel(modelMonHoc);
                     sorterMon = null; 
@@ -177,33 +171,46 @@ public class FacultyPanel extends JPanel {
         });
 
         btnExcelK.addActionListener(e -> exportFile(tblKhoa, "DanhSachKhoa"));
-
         btnAddM.addActionListener(e -> {
             if (selectedMaKhoa == null) {
-                JOptionPane.showMessageDialog(this, "Chọn Khoa trước!");
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn Khoa ở bảng bên trái trước!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             JTextField txtMa = new JTextField();
             JTextField txtTen = new JTextField();
             JTextField txtTC = new JTextField();
             Object[] message = {"Mã Môn:", txtMa, "Tên Môn:", txtTen, "Số TC:", txtTC};
-
-            if (JOptionPane.showConfirmDialog(this, message, "Thêm Môn", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-                try {
+            boolean isDone = false;
+            while (!isDone) {
+                int option = JOptionPane.showConfirmDialog(this, message, "Thêm Môn", JOptionPane.OK_CANCEL_OPTION);
+                if (option == JOptionPane.OK_OPTION) {
                     String ma = txtMa.getText().trim();
                     String ten = txtTen.getText().trim();
-                    int tc = Integer.parseInt(txtTC.getText().trim());
-                    if (ma.isEmpty() || ten.isEmpty()) return;
-                    
-                    if (KhoaDAO.addMonHoc(ma, ten, tc, selectedMaKhoa)) {
-                        loadMonHoc();
-                        txtSearchMon.setText("");
-                        JOptionPane.showMessageDialog(this, "Thêm thành công!");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Lỗi thêm môn (Mã trùng?)");
+                    String tcStr = txtTC.getText().trim();
+                    if (ma.isEmpty() || ten.isEmpty() || tcStr.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                        continue; 
                     }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Số Tín Chỉ phải là số nguyên!");
+                    try {
+                        double tc = Double.parseDouble(tcStr);
+                        if (tc <= 0) {
+                            JOptionPane.showMessageDialog(this, "Số tín chỉ phải lớn hơn 0!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                            continue;
+                        }
+                        if (KhoaDAO.addMonHoc(ma, ten, (int) tc, selectedMaKhoa)) {
+                            loadMonHoc();
+                            txtSearchMon.setText("");
+                            JOptionPane.showMessageDialog(this, "Thêm thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                            isDone = true;
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Lỗi thêm môn (Mã môn có thể đã tồn tại)!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                            isDone = true;
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Số tín chỉ phải là một số hợp lệ (VD: 2 hoặc 2.5)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    break;
                 }
             }
         });
@@ -248,7 +255,6 @@ public class FacultyPanel extends JPanel {
         });
     }
 
-    // --- SETUP TÌM KIẾM AN TOÀN ---
     private void setupSearchListener(JTextField txt, boolean isKhoa) {
         txt.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { applyFilter(); }
@@ -269,11 +275,9 @@ public class FacultyPanel extends JPanel {
         modelKhoa = KhoaDAO.getDSKhoa();
         tblKhoa.setModel(modelKhoa);
         
-        // Cập nhật Sorter mới cho Model mới
         sorterKhoa = new TableRowSorter<>(modelKhoa);
         tblKhoa.setRowSorter(sorterKhoa);
         
-        // Áp dụng lại filter nếu đang có chữ trong ô tìm kiếm
         String text = txtSearchKhoa.getText().trim();
         if(!text.isEmpty()) sorterKhoa.setRowFilter(RowFilter.regexFilter("(?i)" + text));
     }
@@ -291,7 +295,6 @@ public class FacultyPanel extends JPanel {
         }
     }
 
-    // --- CÁC HÀM HELPER KHÁC GIỮ NGUYÊN ---
     private ImageIcon loadResizedIcon(String path, int w, int h) {
         URL url = getClass().getResource("/icons/" + path);
         if (url == null) return null;

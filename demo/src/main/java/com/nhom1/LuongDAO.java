@@ -1,13 +1,11 @@
 package com.nhom1;
+
 import java.sql.*;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 
 public class LuongDAO {
 
-    /**
-     * Lấy danh sách nhân viên KÈM THEO thông tin lương của Tháng/Năm được chọn.
-     */
     public static DefaultTableModel getBangLuong(int thang, int nam) {
         Vector<String> cols = new Vector<>();
         cols.add("Mã NV");
@@ -19,8 +17,6 @@ public class LuongDAO {
         cols.add("THỰC LĨNH");
 
         Vector<Vector<Object>> rows = new Vector<>();
-
-        // Ưu tiên lấy dữ liệu đã lưu trong BangLuong, nếu chưa có thì lấy từ NhanVien
         String sql = "SELECT nv.MaNV, nv.HoTen, nv.ChucVu, " +
                      "ISNULL(bl.HeSo, nv.HeSoLuong) AS HienThiHeSo, " +
                      "ISNULL(bl.LuongCB, nv.LuongCoBan) AS HienThiLuongCB, " +
@@ -98,8 +94,33 @@ public class LuongDAO {
     }
 
     public static boolean saveSingleSalary(String maNV, int thang, int nam, 
-                                           double luongCB, double heSo, double phuCap,
-                                           double luongCung, int tongTiet, double thuLao, double thucLinh) {
+                                           String luongCBStr, String heSoStr, String phuCapStr,
+                                           String luongCungStr, String tongTietStr, String thuLaoStr, String thucLinhStr) {
+        double luongCB, heSo, phuCap, luongCung, thuLao, thucLinh;
+        int tongTiet;
+
+        try {
+            luongCB = Double.parseDouble(luongCBStr.trim());
+            heSo = Double.parseDouble(heSoStr.trim());
+            phuCap = Double.parseDouble(phuCapStr.trim());
+            luongCung = Double.parseDouble(luongCungStr.trim());
+            tongTiet = Integer.parseInt(tongTietStr.trim());
+            thuLao = Double.parseDouble(thuLaoStr.trim());
+            thucLinh = Double.parseDouble(thucLinhStr.trim());
+            
+            if (luongCB <= 0 || heSo <= 0) {
+                System.out.println("Lỗi: Lương cơ bản và Hệ số phải lớn hơn 0");
+                return false;
+            }
+            if (phuCap < 0 || tongTiet < 0 || thuLao < 0 || luongCung < 0 || thucLinh < 0) {
+                System.out.println("Lỗi: Tiền phụ cấp và số tiết không được là số âm");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Lỗi: Dữ liệu nhập vào phải là số, không được chứa chữ cái!");
+            return false;
+        }
+
         Connection conn = null;
         try {
             conn = ConnectDatabase.getConnection();
@@ -138,7 +159,6 @@ public class LuongDAO {
         }
     }
 
-    // --- MỚI: Lấy phụ cấp gốc từ hồ sơ nhân viên (để tính toán lại từ đầu) ---
     public static double getPhuCapCoBan(String maNV) {
         String sql = "SELECT PhuCap FROM NhanVien WHERE MaNV = ?";
         try (Connection conn = ConnectDatabase.getConnection();

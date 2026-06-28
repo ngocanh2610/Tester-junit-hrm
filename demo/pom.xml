@@ -29,6 +29,12 @@
         <version>5.10.2</version>
         <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>
+    </dependency>
 
     <dependency>
         <groupId>com.microsoft.sqlserver</groupId>
@@ -43,12 +49,12 @@
     </dependency>
 
     <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-params</artifactId>
-        <version>5.10.2</version>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>5.11.0</version>
         <scope>test</scope>
     </dependency>
-</dependencies>
+  </dependencies>
 
   <build>
     <pluginManagement>
@@ -65,7 +71,6 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
         </plugin>
-        <!-- Plugin hỗ trợ quét và chạy các bài test JUnit 5 của Maven -->
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.2.5</version>

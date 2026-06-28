@@ -1,4 +1,5 @@
 package com.nhom1;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -6,15 +7,12 @@ import java.text.NumberFormat;
 
 public class SalaryDetailDialog extends JDialog {
 
-    // Đã thêm int thang, int nam vào tham số
     public SalaryDetailDialog(JFrame parent, String maNV, int thang, int nam, double donGiaTiet) {
         super(parent, "Phiếu Lương Chi Tiết: " + maNV + " - Tháng " + thang + "/" + nam, true);
-        setSize(500, 600); // Tăng chiều cao một chút
+        setSize(500, 600); 
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
 
-        // --- SỬA DÒNG 14 Ở ĐÂY ---
-        // Truyền thêm tháng và năm vào để lấy đúng dữ liệu lịch sử
         Object[] data = LuongDAO.getChiTietLuong(maNV, thang, nam);
         
         if (data == null) {
@@ -23,28 +21,20 @@ public class SalaryDetailDialog extends JDialog {
             return;
         }
 
-        // Mapping dữ liệu từ LuongDAO trả về
         String hoTen = (String) data[1];
         String loaiHinh = (String) data[2];
         double heSo = (double) data[3];
         double luongCB = (double) data[4];
         double phuCap = (double) data[5];
         int tongTiet = (int) data[6];
-        double thucLinhDaLuu = (double) data[7]; // Lấy thực lĩnh từ DB (nếu có)
+        double thucLinhDaLuu = (double) data[7]; 
 
-        // Tính toán hiển thị (Logic tính toán lại để hiển thị chi tiết)
-        //double luongCung = (heSo * luongCB) + phuCap; // Cộng phụ cấp vào lương cứng luôn hoặc tách ra tùy logic
-        // Lưu ý: Logic hiển thị dưới đây tách Phụ Cấp ra riêng cho rõ ràng
         double luongHeSo = heSo * luongCB;
-        
         double thuLao = tongTiet * donGiaTiet;
-        
-        // Tổng cộng tính toán tại thời điểm xem
         double tongLuongHienTai = luongHeSo + phuCap + thuLao;
 
         NumberFormat nf = NumberFormat.getInstance();
 
-        // --- GIAO DIỆN ---
         JPanel pnlContent = new JPanel(new GridLayout(0, 1, 10, 10));
         pnlContent.setBorder(new EmptyBorder(20, 30, 20, 30));
         pnlContent.setBackground(Color.WHITE);
@@ -70,15 +60,13 @@ public class SalaryDetailDialog extends JDialog {
 
         pnlContent.add(new JSeparator());
         
-        // Hiển thị tổng
         JLabel lblTotal = new JLabel("TỔNG THỰC LĨNH: " + nf.format(tongLuongHienTai) + " VNĐ");
         lblTotal.setFont(new Font("Arial", Font.BOLD, 18));
-        lblTotal.setForeground(new Color(231, 76, 60)); // Màu đỏ
+        lblTotal.setForeground(new Color(231, 76, 60)); 
         lblTotal.setHorizontalAlignment(SwingConstants.CENTER);
         lblTotal.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         pnlContent.add(lblTotal);
 
-        // Hiển thị trạng thái lưu trữ (Option bổ sung cho chuyên nghiệp)
         if (thucLinhDaLuu > 0) {
              JLabel lblSaved = new JLabel("(Đã chốt sổ: " + nf.format(thucLinhDaLuu) + " VNĐ)");
              lblSaved.setHorizontalAlignment(SwingConstants.CENTER);

@@ -1,37 +1,53 @@
 package com.nhom1;
-import org.junit.jupiter.api.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.mockito.MockedStatic;
+import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class TaiKhoanDAOTest {
 
-    @Test
-    @DisplayName("Đăng nhập thành công với tài khoản hợp lệ")
-    void testLogin_Success() {
-        assertTrue(TaiKhoanDAO.checkLogin("admin", "123"), "Admin phải đăng nhập thành công");
+    private Connection mockConn;
+    private PreparedStatement mockPstmt;
+    private ResultSet mockRs;
+    private MockedStatic<ConnectDatabase> mockedDb;
+
+    @BeforeEach
+    void setUp() throws SQLException {
+        mockConn = mock(Connection.class);
+        mockPstmt = mock(PreparedStatement.class);
+        mockRs = mock(ResultSet.class);
+        
+        mockedDb = mockStatic(ConnectDatabase.class);
+        mockedDb.when(ConnectDatabase::getConnection).thenReturn(mockConn);
     }
 
-    @Test
-    @DisplayName("Sai mật khẩu")
-    void testLogin_WrongPass() {
-        assertFalse(TaiKhoanDAO.checkLogin("admin", "111"), "Sai mật khẩu phải trả về false");
+    @AfterEach
+    void tearDown() {
+        mockedDb.close(); 
     }
 
-    @Test
-    @DisplayName("Sai tên đăng nhập")
-    void testLogin_WrongUser() {
-        assertFalse(TaiKhoanDAO.checkLogin("adddd", "123"), "Sai tên đăng nhập phải trả về false");
-    }
+    @ParameterizedTest(name = "{0}: {5}")
+    @CsvFileSource(resources = "/tai_khoan_test_data.csv", numLinesToSkip = 1)
+    void testLogin_DataDriven(String testCaseID, String username, String password, 
+                              boolean dbFound, boolean expectedResult, String description) throws SQLException {
+        
+        when(mockConn.prepareStatement(anyString())).thenReturn(mockPstmt);
+        when(mockPstmt.executeQuery()).thenReturn(mockRs);
+        when(mockRs.next()).thenReturn(dbFound);
 
-    @Test
-    @DisplayName("Để trống tài khoản hoặc mật khẩu")
-    void testLogin_EmptyFields() {
-        assertFalse(TaiKhoanDAO.checkLogin("", "123"), "Để trống phải trả về false");
-        assertFalse(TaiKhoanDAO.checkLogin("admin", ""), "Trống mật khẩu phải trả về false");
-    }
+        String user = (username != null && username.isEmpty()) ? null : username;
+        String pass = (password != null && password.isEmpty()) ? null : password;
 
-    @Test
-    @DisplayName("Tham số null")
-    void testLogin_NullFields() {
-        assertFalse(TaiKhoanDAO.checkLogin(null, null), "Truyền null phải trả về false hoặc không crash");
+        boolean actualResult = TaiKhoanDAO.checkLogin(user, pass);
+
+        assertEquals(expectedResult, actualResult, testCaseID + " chay sai logic!");
+        
+        System.out.println("Thanh cong: " + testCaseID + " [" + description + "]");
     }
 }

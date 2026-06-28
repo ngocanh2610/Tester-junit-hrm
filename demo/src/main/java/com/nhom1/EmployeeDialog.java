@@ -3,6 +3,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class EmployeeDialog extends JDialog {
 
@@ -18,7 +21,6 @@ public class EmployeeDialog extends JDialog {
     private boolean isSaved = false;
     private boolean isEditMode = false;
 
-    // Màu sắc
     private final Color PRIMARY_COLOR = new Color(46, 204, 113); 
     private final Color EDIT_COLOR = new Color(52, 152, 219);    
 
@@ -33,7 +35,6 @@ public class EmployeeDialog extends JDialog {
 
         if (data != null) isEditMode = true;
 
-        //  1. HEADER
         JPanel pnlHeader = new JPanel();
         pnlHeader.setBackground(isEditMode ? EDIT_COLOR : PRIMARY_COLOR);
         pnlHeader.setPreferredSize(new Dimension(getWidth(), 50));
@@ -44,14 +45,12 @@ public class EmployeeDialog extends JDialog {
         pnlHeader.add(lblTitle);
         this.add(pnlHeader, BorderLayout.NORTH);
 
-        //  2. PHẦN NỘI DUNG
         JPanel pnlContent = new JPanel(new BorderLayout(15, 15));
         pnlContent.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        // A. PANEL FORM (GridBagLayout)
         JPanel pnlForm = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5); // Khoảng cách giữa các dòng
+        gbc.insets = new Insets(5, 5, 5, 5); 
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         txtMaNV = new JTextField();
@@ -76,16 +75,12 @@ public class EmployeeDialog extends JDialog {
         txtLuongCB = new JTextField("0");
         txtPhuCap = new JTextField("0");
 
-        //  DÀN TRANG 
-        
-        // Nhóm 1: Thông tin cá nhân
         addSectionHeader(pnlForm, "1. THÔNG TIN CÁ NHÂN", 0, gbc);
         addFormRow(pnlForm, "Mã Nhân Viên (*):", txtMaNV, 1, gbc);
         addFormRow(pnlForm, "Họ và Tên (*):", txtHoTen, 2, gbc);
         addFormRow(pnlForm, "Ngày Sinh (yyyy-mm-dd):", txtNgaySinh, 3, gbc);
         addFormRow(pnlForm, "Giới Tính:", pnlGender, 4, gbc);
 
-        // Nhóm 2: Thông tin công việc
         addSectionHeader(pnlForm, "2. THÔNG TIN CÔNG VIỆC", 5, gbc);
         addFormRow(pnlForm, "Phòng / Khoa:", cboPhongBan, 6, gbc);
         addFormRow(pnlForm, "Chức Vụ:", cboChucVu, 7, gbc);
@@ -93,7 +88,6 @@ public class EmployeeDialog extends JDialog {
         addFormRow(pnlForm, "Loại Hình:", cboLoaiHinh, 9, gbc);
         addFormRow(pnlForm, "Trạng Thái:", cboTrangThai, 10, gbc);
 
-        // Nhóm 3: Thông tin lương
         addSectionHeader(pnlForm, "3. THÔNG TIN LƯƠNG & THƯỞNG", 11, gbc);
         addFormRow(pnlForm, "Hệ Số Lương:", txtHeSo, 12, gbc);
         addFormRow(pnlForm, "Lương Cơ Bản (VNĐ):", txtLuongCB, 13, gbc);
@@ -103,7 +97,6 @@ public class EmployeeDialog extends JDialog {
         gbc.gridy = 15;
         pnlForm.add(new JLabel(), gbc);
 
-        // B. PANEL ẢNH
         JPanel pnlRight = new JPanel(new BorderLayout());
         pnlRight.setPreferredSize(new Dimension(220, 0));
         pnlRight.setBorder(BorderFactory.createTitledBorder("Ảnh Đại Diện"));
@@ -118,19 +111,16 @@ public class EmployeeDialog extends JDialog {
 
         pnlRight.add(lblHinhAnh, BorderLayout.CENTER);
         
-        // Thêm Form và Ảnh vào Content
         pnlContent.add(new JScrollPane(pnlForm), BorderLayout.CENTER);
         pnlContent.add(pnlRight, BorderLayout.EAST);
         this.add(pnlContent, BorderLayout.CENTER);
 
-        //  3. FOOTER 
         JPanel pnlBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
         pnlBtn.setBackground(new Color(245, 245, 245));
         
         JButton btnSave = new JButton(isEditMode ? "LƯU CẬP NHẬT" : "LƯU HỒ SƠ");
         JButton btnCancel = new JButton("ĐÓNG");
         
-        // Style nút bấm
         btnSave.setPreferredSize(new Dimension(150, 40));
         btnSave.setBackground(isEditMode ? EDIT_COLOR : PRIMARY_COLOR);
         btnSave.setForeground(Color.WHITE);
@@ -149,8 +139,6 @@ public class EmployeeDialog extends JDialog {
 
         if (isEditMode) loadOldData(data);
     }
-
-    //  CÁC HÀM HỖ TRỢ TẠO GIAO DIỆN
     
     private void addSectionHeader(JPanel panel, String title, int row, GridBagConstraints gbc) {
         JLabel lbl = new JLabel(title);
@@ -173,20 +161,16 @@ public class EmployeeDialog extends JDialog {
         JLabel lbl = new JLabel(labelText);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         
-        // Cột 0: Label (Căn phải)
         gbc.gridx = 0; gbc.gridy = row;
         gbc.weightx = 0.0;
         gbc.anchor = GridBagConstraints.EAST; 
         panel.add(lbl, gbc);
 
-        // Cột 1: Field (Căn trái & Giãn rộng)
         gbc.gridx = 1; gbc.gridy = row;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(field, gbc);
     }
-
-    //  LOGIC
 
     private void chonAnh() {
         JFileChooser fileChooser = new JFileChooser();
@@ -212,8 +196,6 @@ public class EmployeeDialog extends JDialog {
     }
 
     private void loadOldData(String[] data) {
-        // Cấu trúc mảng data từ DAO:
-        // 0:Ma, 1:Ten, 2:NgaySinh, 3:PB, 4:ChucVu, 5:TrinhDo, 6:LoaiHinh, 7:TrangThai, 8:HeSo, 9:Luong, 10:PhuCap, 11:ThucLinh, 12:HinhAnh
         try {
             txtMaNV.setText(data[0]); 
             txtMaNV.setEditable(false);
@@ -229,11 +211,9 @@ public class EmployeeDialog extends JDialog {
             cboTrinhDo.setSelectedItem(data[5]);
             cboLoaiHinh.setSelectedItem(data[6]);
             cboTrangThai.setSelectedItem(data[7]);
-            
             if(data.length > 8) txtHeSo.setText(data[8]);
             if(data.length > 9) txtLuongCB.setText(data[9].replace(",", "").replace(" VNĐ", ""));
             if(data.length > 10) txtPhuCap.setText(data[10].replace(",", "").replace(" VNĐ", ""));
-            
             if (data.length > 0) {
                 String hinh = data[data.length - 1]; 
                 if (hinh != null && hinh.length() > 0) setHinhAnh(hinh);
@@ -244,25 +224,49 @@ public class EmployeeDialog extends JDialog {
     private void save() {
         String ma = txtMaNV.getText().trim();
         String ten = txtHoTen.getText().trim();
-        String ngaySinh = txtNgaySinh.getText().trim(); if(ngaySinh.isEmpty()) ngaySinh = null;
+        String ngaySinh = txtNgaySinh.getText().trim(); 
+        if(ngaySinh.isEmpty()) ngaySinh = null;
         String gioiTinh = rdoNam.isSelected() ? "Nam" : "Nữ";
         String chucVu = cboChucVu.getSelectedItem().toString();
         String trinhDo = cboTrinhDo.getSelectedItem().toString();
         String loaiHinh = cboLoaiHinh.getSelectedItem().toString();
         String trangThai = cboTrangThai.getSelectedItem().toString();
-        
         String pbStr = cboPhongBan.getSelectedItem() != null ? cboPhongBan.getSelectedItem().toString() : null;
         String maPB = pbStr != null ? pbStr.split("-")[0].trim() : null;
+        if (ma.isEmpty() || ten.isEmpty()) { 
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập Mã và Tên nhân viên!", "Cảnh báo", JOptionPane.WARNING_MESSAGE); 
+            return; 
+        }
+        if (ngaySinh != null) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate inputDate = LocalDate.parse(ngaySinh, formatter);
+                LocalDate currentDate = LocalDate.now();
 
-        if (ma.isEmpty() || ten.isEmpty()) { JOptionPane.showMessageDialog(this, "Vui lòng nhập Mã và Tên!"); return; }
+                if (inputDate.isAfter(currentDate)) {
+                    JOptionPane.showMessageDialog(this, "Ngày sinh không được lớn hơn ngày hiện tại!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "Định dạng ngày sinh không đúng! Vui lòng nhập theo định dạng yyyy-mm-dd (Ví dụ: 1990-12-30).", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
 
         double heSo = 0, luongCB = 0, phuCap = 0;
         try {
             heSo = Double.parseDouble(txtHeSo.getText().trim());
             luongCB = Double.parseDouble(txtLuongCB.getText().replace(",", "").trim());
             phuCap = Double.parseDouble(txtPhuCap.getText().replace(",", "").trim());
-        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Lương/Hệ số phải là số!"); return; }
-
+            
+            if (heSo < 0 || luongCB < 0 || phuCap < 0) {
+                JOptionPane.showMessageDialog(this, "Hệ số, Lương cơ bản và Phụ cấp không được là số âm!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException e) { 
+            JOptionPane.showMessageDialog(this, "Hệ số, Lương cơ bản và Phụ cấp bắt buộc phải là số!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE); 
+            return; 
+        }
         boolean result;
         if (isEditMode) {
             result = NhanSuDAO.updateNhanVien(ma, ten, ngaySinh, gioiTinh, maPB, chucVu, trinhDo, loaiHinh, trangThai, heSo, luongCB, phuCap, tenFileHinh);
@@ -270,8 +274,13 @@ public class EmployeeDialog extends JDialog {
             result = NhanSuDAO.addNhanVien(ma, ten, ngaySinh, gioiTinh, maPB, chucVu, trinhDo, loaiHinh, trangThai, heSo, luongCB, phuCap, tenFileHinh);
         }
 
-        if (result) { JOptionPane.showMessageDialog(this, "Lưu thành công!"); isSaved = true; dispose(); } 
-        else { JOptionPane.showMessageDialog(this, "Lưu thất bại! (Có thể trùng Mã NV)"); }
+        if (result) { 
+            JOptionPane.showMessageDialog(this, "Lưu thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE); 
+            isSaved = true; 
+            dispose(); 
+        } else { 
+            JOptionPane.showMessageDialog(this, "Lưu thất bại! (Mã nhân viên có thể đã tồn tại hoặc lỗi CSDL)", "Lỗi", JOptionPane.ERROR_MESSAGE); 
+        }
     }
     
     public boolean isSaved() { return isSaved; }

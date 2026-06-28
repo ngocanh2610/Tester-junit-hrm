@@ -1,0 +1,11 @@
+testCaseID,description,maNV,thu,tietBDStr,soTietStr,phongHoc,tuNgayStr,denNgayStr,expectException,expectedMsg
+TC_PC01,Tiet Bat Dau Ngoai Bien,gv03,Thứ 2,16,3,P.101,2026-06-15,2026-10-15,true,Tiết bắt đầu phải từ 1 đến 15
+TC_PC02,Vuot Qua So Tiet Trong Ngay,gv03,Thứ 2,13,4,P.101,2026-06-15,2026-10-15,true,Lịch học vượt quá tiết 15 trong ngày
+TC_PC03,So Tiet Ngoai Bien,gv03,Thứ 2,13,-2,P.101,2026-06-15,2026-10-15,true,Số tiết phải lớn hơn 0
+TC_PC04,Tu Ngay Sau Den Ngay,gv03,Thứ 2,1,3,P.101,2026-10-15,2026-06-15,true,Ngày bắt đầu không được lớn hơn ngày kết thúc!
+TC_PC05,Trung Lich Giang Vien,gv03,Thứ 2,2,3,P.102,2026-06-15,2026-10-15,false,RETURN_FALSE
+TC_PC06,Trung Phong Hoc,gv02,Thứ 2,2,3,P.101,2026-06-15,2026-10-15,false,RETURN_FALSE
+TC_PC07,Phan Cong Hop Le,gv03,Thứ 2,1,3,P.105,2026-06-15,2026-10-15,false,RETURN_TRUE
+TC_PC08,Bo Trong Phong Hoc,gv03,Thứ 2,1,3,,2026-06-15,2026-10-15,true,Phòng học không được để trống!
+TC_PC09,Bo Trong Tiet Bat Dau Hoac So Tiet,gv03,Thứ 2,,,P.101,2026-06-15,2026-10-15,true,NUMBER_FORMAT_EXCEPTION
+TC_PC10,Bo Trong Ngay Thang,gv03,Thứ 2,1,3,P.101,,2026-10-15,true,Ngày phân công không được để trống!

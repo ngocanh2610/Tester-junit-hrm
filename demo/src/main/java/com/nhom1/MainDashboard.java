@@ -44,14 +44,10 @@ public class MainDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // ====================================================================
-        // A. KHỞI TẠO PANEL
-        // ====================================================================
         cardLayout = new CardLayout();
         pnlCenterContent = new JPanel(cardLayout);
         pnlCenterContent.setBackground(new Color(240, 242, 245)); 
 
-        // Khởi tạo các panel (gán vào biến toàn cục)
         pnlDashboard = new DashboardPanel(); 
         EmployeePanel pnlEmployee = new EmployeePanel(this); 
         FacultyPanel pnlFaculty = new FacultyPanel();
@@ -61,8 +57,6 @@ public class MainDashboard extends JFrame {
         pnlEval = new EvaluationPanel();
         SalaryPanel pnlSalary = new SalaryPanel();
         pnlAccount = new AccountPanel();
-
-        // Add vào CardLayout
         pnlCenterContent.add(pnlDashboard, "HOME");
         pnlCenterContent.add(pnlEmployee, "EMP");
         pnlCenterContent.add(pnlFaculty, "FACULTY");
@@ -73,15 +67,11 @@ public class MainDashboard extends JFrame {
         pnlCenterContent.add(pnlEval, "EVAL");
         pnlCenterContent.add(pnlAccount, "ACCOUNT");
 
-        // ====================================================================
-        // B. HEADER
-        // ====================================================================
         JPanel pnlHeader = new JPanel(new BorderLayout());
         pnlHeader.setBackground(COL_HEADER_BG); 
         pnlHeader.setPreferredSize(new Dimension(0, 60)); 
         pnlHeader.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(31, 97, 141)));
 
-        // UNICODE FIX
         String roleAdmin = "Qu\u1EA3n Tr\u1ECA Vi\u00AAn"; 
         String roleGV    = "Gi\u1EA3ng Vi\u00AAn";       
         String hello     = "Xin ch\u00E0o, ";            
@@ -108,9 +98,6 @@ public class MainDashboard extends JFrame {
         
         add(pnlHeader, BorderLayout.NORTH);
 
-        // ====================================================================
-        // C. SIDEBAR
-        // ====================================================================
         GradientPanel pnlSidebar = new GradientPanel();
         pnlSidebar.setLayout(new BoxLayout(pnlSidebar, BoxLayout.Y_AXIS));
         pnlSidebar.setPreferredSize(new Dimension(250, 0));
@@ -128,9 +115,6 @@ public class MainDashboard extends JFrame {
         pnlSidebar.add(pnlLogo);
         pnlSidebar.add(Box.createVerticalStrut(20));
 
-        // --- BUTTONS ---
-        
-        // [QUAN TRỌNG] Sự kiện nút Dashboard: Gọi refreshData()
         addSidebarBtn(pnlSidebar, "Dashboard", "📊", e -> {
             if(pnlDashboard != null) pnlDashboard.refreshData(); // Refresh biểu đồ
             cardLayout.show(pnlCenterContent, "HOME");
@@ -295,7 +279,6 @@ public class MainDashboard extends JFrame {
         }
     }
     
-    // NÂNG CẤP TEXT ICON ĐỂ KHÔNG BỊ KHUYẾT CHỮ KHI ICON TO
     class TextIcon implements Icon {
         String str; 
         int size; 

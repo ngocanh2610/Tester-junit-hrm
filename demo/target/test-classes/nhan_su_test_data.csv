@@ -1,0 +1,8 @@
+testCaseID,maNV,hoTen,ngaySinh,heSo,luongCB,phuCap,expectException,expectedMsg,description
+TC_NS01,NV01,Nguyen Van A,2000-01-01,1.0,10000000,500000,false,RETURN_TRUE,Them nhan vien hop le
+TC_NS02,,Nguyen Van A,2000-01-01,1.0,10000000,500000,true,Mã nhân viên không được để trống!,Bo trong ma nhan vien
+TC_NS03,NV02,,2000-01-01,1.0,10000000,500000,true,Họ tên không được để trống!,Bo trong ho ten
+TC_NS04,NV06,Nguyen Van A,2030-01-01,1.0,10000000,500000,true,Ngày sinh không được lớn hơn ngày hiện tại!,Ngay sinh o tuong lai
+TC_NS05,NV03,Nguyen Van A,2000-01-01,-1.5,10000000,500000,true,Các trường lương không được âm!,He so am
+TC_NS06,NV04,Nguyen Van A,2000-01-01,1.0,-100,500000,true,Các trường lương không được âm!,Luong co ban am
+TC_NS07,NV05,Nguyen Van A,2000-01-01,1.0,10000000,-100,true,Các trường lương không được âm!,Phu cap am

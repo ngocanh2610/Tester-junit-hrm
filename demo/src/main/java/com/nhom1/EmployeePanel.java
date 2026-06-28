@@ -20,7 +20,6 @@ public class EmployeePanel extends JPanel {
     private JTextField txtSearch;
     private TableRowSorter<DefaultTableModel> sorter;
 
-    // --- MÀU SẮC GIAO DIỆN (ĐỒNG BỘ) ---
     private final Color COL_PRIMARY = new Color(0, 150, 136);
     private final Color COL_HEADER_TEXT = Color.WHITE;
     private final Color COL_DANGER = new Color(231, 76, 60);
@@ -36,7 +35,6 @@ public class EmployeePanel extends JPanel {
         JPanel mainCard = createCardPanel();
         add(mainCard, BorderLayout.CENTER);
 
-        // --- 1. HEADER & SEARCH ---
         JPanel pnlTop = new JPanel();
         pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
         pnlTop.setBackground(Color.WHITE);
@@ -47,11 +45,9 @@ public class EmployeePanel extends JPanel {
         pnlTop.add(createSearchPanel(txtSearch));
         mainCard.add(pnlTop, BorderLayout.NORTH);
 
-        // --- 2. TABLE ---
         table = createModernTable();
         mainCard.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // --- 3. BUTTONS ---
         JPanel pnlTools = new JPanel(new GridLayout(1, 4, 10, 0));
         pnlTools.setBackground(Color.WHITE);
         pnlTools.setBorder(new EmptyBorder(10, 0, 0, 0));

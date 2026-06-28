@@ -1,119 +1,77 @@
 package com.nhom1;
 
-import org.junit.jupiter.api.*;
-import javax.swing.table.DefaultTableModel;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.mockito.MockedStatic;
+import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class KhoaDAOTest {
-    private final String T_KHOA = "f_test"; 
-    private final String T_MON = "m1_test"; 
-    private final String KHOA_CO_SAN = "a"; 
-    private final String MON_CO_SAN = "g";  
 
-    @Test
-    @Order(1)
-    @DisplayName("TC_K01: Lấy danh sách Khoa")
-    public void testTC_K01() {
-        DefaultTableModel model = KhoaDAO.getDSKhoa();
-        assertNotNull(model, "Bảng danh sách khoa không được rỗng");
-        assertTrue(model.getRowCount() > 0, "Phải lấy ra được dữ liệu (ví dụ: a, c, e)");
+    private Connection mockConn;
+    private PreparedStatement mockPstmt;
+    private MockedStatic<ConnectDatabase> mockedDb;
+
+    @BeforeEach
+    void setUp() throws SQLException {
+        mockConn = mock(Connection.class);
+        mockPstmt = mock(PreparedStatement.class);
+        mockedDb = mockStatic(ConnectDatabase.class);
+        mockedDb.when(ConnectDatabase::getConnection).thenReturn(mockConn);
     }
 
-    @Test
-    @Order(2)
-    @DisplayName("TC_K02: Thêm Khoa MỚI hợp lệ")
-    public void testTC_K02() {
-        KhoaDAO.deleteKhoa(T_KHOA); 
-        boolean isAdded = KhoaDAO.addKhoa(T_KHOA, "Khoa Mới");
-        assertTrue(isAdded, "Thêm mã khoa mới phải trả về true");
+    @AfterEach
+    void tearDown() {
+        mockedDb.close();
     }
 
-    @Test
-    @Order(3)
-    @DisplayName("TC_K03: Thêm Khoa TRÙNG MÃ")
-    public void testTC_K03() {
-        boolean isAdded = KhoaDAO.addKhoa(KHOA_CO_SAN, "Khoa Test");
-        assertFalse(isAdded, "Thêm mã khoa 'a' đã tồn tại phải bị từ chối và trả về false");
-    }
+    @ParameterizedTest(name = "{0}: {10}")
+    @CsvFileSource(resources = "/khoa_mon_test_data.csv", numLinesToSkip = 1)
+    public void testKhoaVaMonHoc_DataDriven(String testCaseID, String type, String action,
+                                           String param1, String param2, String param3, String param4,
+                                           Integer dbResult, String dbError, boolean expectedResult, 
+                                           String description) throws SQLException {
+        
+        when(mockConn.prepareStatement(anyString())).thenReturn(mockPstmt);
+        
+        if (dbError != null && !dbError.trim().isEmpty()) {
+            when(mockPstmt.executeUpdate()).thenThrow(new SQLException(dbError));
+        } else {
+            int resultCount = 0;
+            if (dbResult != null) {
+                resultCount = dbResult;
+            }
+            when(mockPstmt.executeUpdate()).thenReturn(resultCount);
+        }
 
-    @Test
-    @Order(4)
-    @DisplayName("TC_K04: Thêm Khoa bỏ trống")
-    public void testTC_K04() {
-        boolean isAdded = KhoaDAO.addKhoa("", "");
-        assertFalse(isAdded, "Bỏ trống mã khoa phải trả về false (Yêu cầu DB chặn rỗng)");
-    }
+        String p1 = (param1 == null) ? "" : param1;
+        String p2 = (param2 == null) ? "" : param2;
+        boolean actualResult = false;
 
-    @Test
-    @Order(5)
-    @DisplayName("TC_K05: Cập nhật Khoa")
-    public void testTC_K05() {
-        boolean isUpdated = KhoaDAO.updateKhoa(T_KHOA, "Khoa Đổi Tên");
-        assertTrue(isUpdated, "Cập nhật Khoa đang tồn tại phải thành công");
-    }
-
-    @Test
-    @Order(6)
-    @DisplayName("TC_K06: Xóa Khoa")
-    public void testTC_K06() {
-        boolean isDeleted = KhoaDAO.deleteKhoa(T_KHOA);
-        assertTrue(isDeleted, "Xóa Khoa tồn tại phải thành công");
-    }
-
-    @Test
-    @Order(7)
-    @DisplayName("TC_M01: Xem danh sách Môn theo Khoa")
-    public void testTC_M01() {
-        DefaultTableModel model = KhoaDAO.getDSMonHoc(KHOA_CO_SAN);
-        assertNotNull(model);
-        assertTrue(model.getRowCount() > 0, "Khoa 'a' đang có môn học thì phải trả về > 0 dòng");
-    }
-
-    @Test
-    @Order(8)
-    @DisplayName("TC_M02: Thêm Môn MỚI hợp lệ")
-    public void testTC_M02() {
-        KhoaDAO.deleteMonHoc(T_MON);
-        boolean isAdded = KhoaDAO.addMonHoc(T_MON, "Test", 3, KHOA_CO_SAN);
-        assertTrue(isAdded, "Thêm môn học mới phải thành công");
-    }
-
-    @Test
-    @Order(9)
-    @DisplayName("TC_M03: Thêm Môn TRÙNG MÃ")
-    public void testTC_M03() {
-        boolean isAdded = KhoaDAO.addMonHoc(MON_CO_SAN, "Khác", 2, KHOA_CO_SAN);
-        assertFalse(isAdded, "Thêm trùng mã môn 'g' phải trả về false");
-    }
-
-    @Test
-    @Order(10)
-    @DisplayName("TC_M04: Thêm Môn sai kiểu Tín Chỉ (nhập chữ cái)")
-    public void testTC_M04() {
-        Exception exception = assertThrows(NumberFormatException.class, () -> {
-            String inputTuGiaoDien = "chữ cái";
-            int tcSaiKieu = Integer.parseInt(inputTuGiaoDien); 
-            
-            KhoaDAO.addMonHoc("m2", "Toán", tcSaiKieu, KHOA_CO_SAN);
-        });
-        assertNotNull(exception, "Phải bắt được lỗi định dạng số");
-    }
-
-    @Test
-    @Order(11)
-    @DisplayName("TC_M05: Cập nhật Môn học")
-    public void testTC_M05() {
-        boolean isUpdated = KhoaDAO.updateMonHoc(T_MON, "R+", 4);
-        assertTrue(isUpdated, "Cập nhật môn học tồn tại phải thành công");
-    }
-
-    @Test
-    @Order(12)
-    @DisplayName("TC_M06: Xóa Môn học")
-    public void testTC_M06() {
-        boolean isDeleted = KhoaDAO.deleteMonHoc(T_MON);
-        assertTrue(isDeleted, "Xóa môn học tồn tại phải thành công");
+        if ("KHOA".equals(type)) {
+            if ("ADD".equals(action)) {
+                actualResult = KhoaDAO.addKhoa(p1, p2);
+            } else if ("UPDATE".equals(action)) {
+                actualResult = KhoaDAO.updateKhoa(p1, p2);
+            } else if ("DELETE".equals(action)) {
+                actualResult = KhoaDAO.deleteKhoa(p1);
+            }
+        } else if ("MON".equals(type)) {
+            int tinChi = (param3 == null || param3.trim().isEmpty()) ? 0 : Integer.parseInt(param3.trim());
+            String maKhoa = (param4 == null) ? "" : param4;
+            if ("ADD".equals(action)) {
+                actualResult = KhoaDAO.addMonHoc(p1, p2, tinChi, maKhoa);
+            } else if ("UPDATE".equals(action)) {
+                actualResult = KhoaDAO.updateMonHoc(p1, p2, tinChi);
+            } else if ("DELETE".equals(action)) {
+                actualResult = KhoaDAO.deleteMonHoc(p1);
+            }
+        }
+        assertEquals(expectedResult, actualResult, testCaseID + " that bai");
+        System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
     }
 }

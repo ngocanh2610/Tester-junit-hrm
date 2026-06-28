@@ -1,0 +1,6 @@
+testCaseID,username,password,dbFound,expectedResult,description
+TC_TK01,admin,123,true,true,Dang nhap thanh cong voi tai khoan hop le
+TC_TK02,admin,111,false,false,Sai mat khau
+TC_TK03,adddd,123,false,false,Sai ten dang nhap
+TC_TK04,,123,false,false,De trong ten tai khoan
+TC_TK05,admin,,false,false,De trong mat khau

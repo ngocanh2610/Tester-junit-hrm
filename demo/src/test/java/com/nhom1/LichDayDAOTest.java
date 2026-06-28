@@ -1,14 +1,13 @@
 package com.nhom1;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LichDayDAOTest {
-
     public boolean kiemTraVaPhanCong(String maNV, String thu, int tietBD, int soTiet, 
                                      String phongHoc, LocalDate tuNgay, LocalDate denNgay) {
-        
         if (phongHoc == null || phongHoc.trim().isEmpty()) {
             throw new IllegalArgumentException("Phòng học không được để trống!");
         }
@@ -24,6 +23,9 @@ public class LichDayDAOTest {
         if (tietBD + soTiet - 1 > 15) {
             throw new IllegalArgumentException("Lịch học vượt quá tiết 15 trong ngày");
         }
+        if (soTiet < 1 ){
+            throw new IllegalArgumentException("Số tiết phải lớn hơn 0");
+        }
         if ("gv03".equals(maNV) && "Thứ 2".equals(thu) && tietBD == 2) {
             return false; 
         }
@@ -33,85 +35,44 @@ public class LichDayDAOTest {
         return true; 
     }
 
-    @Test
-    public void testTC_PC01_TietBatDauNgoaiBien() {
-        LocalDate tuNgay = LocalDate.of(2026, 6, 15);
-        LocalDate denNgay = LocalDate.of(2026, 10, 15);
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            kiemTraVaPhanCong("gv03", "Thứ 2", 16, 3, "P.101", tuNgay, denNgay);
-        });
-    }
+    @ParameterizedTest(name = "{0}: {1}")
+    @CsvFileSource(resources = "/lich_day_test_data.csv", numLinesToSkip = 1)
+    public void testLichDay_DataDriven(String testCaseID, String description, 
+                                       String maNV, String thu, String tietBDStr, String soTietStr, 
+                                       String phongHoc, String tuNgayStr, String denNgayStr, 
+                                       boolean expectException, String expectedMsg) {
+        try {
+            if (tietBDStr == null || tietBDStr.trim().isEmpty() || soTietStr == null || soTietStr.trim().isEmpty()) {
+                throw new NumberFormatException("Phải bắt được lỗi định dạng số do bỏ trống ô nhập số");
+            }
+            int tietBD = Integer.parseInt(tietBDStr.trim());
+            int soTiet = Integer.parseInt(soTietStr.trim());
+            LocalDate tuNgay = (tuNgayStr == null || tuNgayStr.trim().isEmpty()) ? null : LocalDate.parse(tuNgayStr.trim());
+            LocalDate denNgay = (denNgayStr == null || denNgayStr.trim().isEmpty()) ? null : LocalDate.parse(denNgayStr.trim());
+            String phongHocParam = (phongHoc == null) ? "" : phongHoc;
+            if (expectException) {
+                Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+                    kiemTraVaPhanCong(maNV, thu, tietBD, soTiet, phongHocParam, tuNgay, denNgay);
+                });
+                assertEquals(expectedMsg, exception.getMessage(), testCaseID + " sai thông điệp lỗi!");
+                System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
+            } else {
+                boolean result = kiemTraVaPhanCong(maNV, thu, tietBD, soTiet, phongHocParam, tuNgay, denNgay);
+                if ("RETURN_TRUE".equals(expectedMsg)) {
+                    assertTrue(result, testCaseID + " Thất bại: Dữ liệu hợp lệ đáng lẽ phải lưu được!");
+                } else if ("RETURN_FALSE".equals(expectedMsg)) {
+                    assertFalse(result, testCaseID + " Thất bại: Trùng lịch/Phòng đáng lẽ ko cho lưu!");
+                }
+                System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
+            }
 
-    @Test
-    public void testTC_PC02_VuotQuaSoTietTrongNgay() {
-        LocalDate tuNgay = LocalDate.of(2026, 6, 15);
-        LocalDate denNgay = LocalDate.of(2026, 10, 15);
-        assertThrows(IllegalArgumentException.class, () -> {
-            kiemTraVaPhanCong("gv03", "Thứ 2", 13, 4, "P.101", tuNgay, denNgay); 
-        });
-    }
-
-    @Test
-    public void testTC_PC03_TuNgaySauDenNgay() {
-        LocalDate tuNgay = LocalDate.of(2026, 10, 15);
-        LocalDate denNgay = LocalDate.of(2026, 6, 15);  
-        assertThrows(IllegalArgumentException.class, () -> {
-            kiemTraVaPhanCong("gv03", "Thứ 2", 1, 3, "P.101", tuNgay, denNgay);
-        });
-    }
-
-    @Test
-    public void testTC_PC04_TrungLichGiangVien() {
-        LocalDate tuNgay = LocalDate.of(2026, 6, 15);
-        LocalDate denNgay = LocalDate.of(2026, 10, 15);
-        boolean result = kiemTraVaPhanCong("gv03", "Thứ 2", 2, 3, "P.102", tuNgay, denNgay);
-        assertFalse(result, "Thất bại: Trùng lịch giảng viên nhưng vẫn cho lưu");
-    }
-
-    @Test
-    public void testTC_PC05_TrungPhongHoc() {
-        LocalDate tuNgay = LocalDate.of(2026, 6, 15);
-        LocalDate denNgay = LocalDate.of(2026, 10, 15);
-        boolean result = kiemTraVaPhanCong("gv02", "Thứ 2", 2, 3, "P.101", tuNgay, denNgay);
-        assertFalse(result, "Thất bại: Trùng phòng học nhưng vẫn cho lưu");
-    }
-
-    @Test
-    public void testTC_PC06_PhanCongHopLe() {
-        LocalDate tuNgay = LocalDate.of(2026, 6, 15);
-        LocalDate denNgay = LocalDate.of(2026, 10, 15);
-        boolean result = kiemTraVaPhanCong("gv03", "Thứ 2", 1, 3, "P.105", tuNgay, denNgay);
-        assertTrue(result, "Thất bại: Dữ liệu hoàn toàn hợp lệ nhưng không lưu được");
-    }
-
-    @Test
-    public void testTC_PC07_BoTrongPhongHoc() {
-        LocalDate tuNgay = LocalDate.of(2026, 6, 15);
-        LocalDate denNgay = LocalDate.of(2026, 10, 15);
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            kiemTraVaPhanCong("gv03", "Thứ 2", 1, 3, "", tuNgay, denNgay);
-        });
-        assertEquals("Phòng học không được để trống!", exception.getMessage());
-    }
-
-    @Test
-    public void testTC_PC08_BoTrongTietBatDau_Hoac_SoTiet() {
-        Exception exception = assertThrows(NumberFormatException.class, () -> {
-            String inputTietBD_TuUI = "";
-            int tietBD = Integer.parseInt(inputTietBD_TuUI); 
-            LocalDate tuNgay = LocalDate.of(2026, 6, 15);
-            LocalDate denNgay = LocalDate.of(2026, 10, 15);
-            kiemTraVaPhanCong("gv03", "Thứ 2", tietBD, 3, "P.101", tuNgay, denNgay);
-        });
-        assertNotNull(exception, "Phải bắt được lỗi định dạng số do bỏ trống ô nhập số");
-    }
-
-    @Test
-    public void testTC_PC09_BoTrongNgayThang() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            kiemTraVaPhanCong("gv03", "Thứ 2", 1, 3, "P.101", null, LocalDate.of(2026, 10, 15));
-        });
-        assertEquals("Ngày phân công không được để trống!", exception.getMessage());
+        } catch (NumberFormatException e) {
+            if (expectException && "NUMBER_FORMAT_EXCEPTION".equals(expectedMsg)) {
+                assertNotNull(e.getMessage());
+                System.out.println("Thanh cong: " + testCaseID + " [" + description + "] -> pass");
+            } else {
+                fail(testCaseID + " Bị lỗi định dạng số ngoài ý muốn: " + e.getMessage());
+            }
+        }
     }
 }
