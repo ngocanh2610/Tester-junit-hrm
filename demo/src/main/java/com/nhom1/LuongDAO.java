@@ -6,6 +6,14 @@ import javax.swing.table.DefaultTableModel;
 
 public class LuongDAO {
 
+    public static double tinhLuong(double luongCB, double heSo, double phuCap, 
+                                   int soTiet, double donGiaTiet) {
+        if (luongCB < 0 || heSo < 0 || phuCap < 0 || soTiet < 0 || donGiaTiet < 0) {
+            throw new IllegalArgumentException("Du lieu dau vao khong duoc am!");
+        }
+        return (luongCB * heSo) + phuCap + (soTiet * donGiaTiet);
+    }
+
     public static DefaultTableModel getBangLuong(int thang, int nam) {
         Vector<String> cols = new Vector<>();
         cols.add("Mã NV");

@@ -58,7 +58,7 @@ public class LichDayDAO {
                 denNgay);
     }
 
-    private boolean checkTrungLichGiangVien(String maNV, int thu, int inputTietBD, int inputSoTiet,
+    protected boolean checkTrungLichGiangVien(String maNV, int thu, int inputTietBD, int inputSoTiet,
             LocalDate inputTuNgay, LocalDate inputDenNgay) {
         String sql = "SELECT COUNT(*) FROM LichDay WHERE MaNV = ? AND Thu = ? " +
                 "AND (TuNgay <= ? AND DenNgay >= ?) " +
@@ -83,7 +83,7 @@ public class LichDayDAO {
         return false;
     }
 
-    private boolean checkTrungPhongHoc(String phongHoc, int thu, int inputTietBD, int inputSoTiet,
+    protected boolean checkTrungPhongHoc(String phongHoc, int thu, int inputTietBD, int inputSoTiet,
             LocalDate inputTuNgay, LocalDate inputDenNgay) {
         String sql = "SELECT COUNT(*) FROM LichDay WHERE PhongHoc = ? AND Thu = ? " +
                 "AND (TuNgay <= ? AND DenNgay >= ?) " +
@@ -108,7 +108,7 @@ public class LichDayDAO {
         return false;
     }
 
-    private boolean addLichDay(String maNV, String mon, String phong, int thu, int tiet, int soTiet, LocalDate tuNgay,
+    protected boolean addLichDay(String maNV, String mon, String phong, int thu, int tiet, int soTiet, LocalDate tuNgay,
             LocalDate denNgay) {
         String sql = "INSERT INTO LichDay (MaNV, TenMonHoc, PhongHoc, Thu, TietBatDau, SoTiet, TuNgay, DenNgay) VALUES (?,?,?,?,?,?,?,?)";
         try (Connection conn = ConnectDatabase.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {

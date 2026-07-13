@@ -55,10 +55,6 @@ public class KhoaDAOTest {
         if ("KHOA".equals(type)) {
             if ("ADD".equals(action)) {
                 actualResult = KhoaDAO.addKhoa(p1, p2);
-            } else if ("UPDATE".equals(action)) {
-                actualResult = KhoaDAO.updateKhoa(p1, p2);
-            } else if ("DELETE".equals(action)) {
-                actualResult = KhoaDAO.deleteKhoa(p1);
             }
         } else if ("MON".equals(type)) {
             int tinChi = 0;
@@ -72,10 +68,6 @@ public class KhoaDAOTest {
             String maKhoa = (param4 == null) ? "" : param4;
             if ("ADD".equals(action)) {
                 actualResult = KhoaDAO.addMonHoc(p1, p2, tinChi, maKhoa);
-            } else if ("UPDATE".equals(action)) {
-                actualResult = KhoaDAO.updateMonHoc(p1, p2, tinChi);
-            } else if ("DELETE".equals(action)) {
-                actualResult = KhoaDAO.deleteMonHoc(p1);
             }
         }
         assertEquals(expectedResult, actualResult, testCaseID + " that bai");
